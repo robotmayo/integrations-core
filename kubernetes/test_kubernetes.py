@@ -58,6 +58,7 @@ def KubeUtil_fake_retrieve_json_auth(url, timeout=10):
         return json.loads(Fixtures.read_file("events.json", sdk_dir=FIXTURE_DIR, string_escape=False))
     return {}
 
+
 class TestKubernetes(AgentCheckTest):
 
     CHECK_NAME = 'kubernetes'
@@ -244,7 +245,7 @@ class TestKubernetes(AgentCheckTest):
               'image_tag:massi_ingest_k8s_events','pod_name:default/dd-agent-1rxlh',
               'kube_namespace:default', 'kube_app:dd-agent', 'kube_foo:bar',
               'kube_bar:baz', 'kube_replication_controller:dd-agent'], [LIM, REQ, MEM, CPU, NET, DISK, DISK_USAGE]),
-            (['kube_replication_controller:dd-agent', 'kube_namespace:default'], [PODS]),
+            (['kube_replication_controller:dd-agent', 'kube_namespace:default', 'kube_daemon_set:dd-agent'], [PODS]),
             ([], [LIM, REQ, CAP])  # container from kubernetes api doesn't have a corresponding entry in Cadvisor
         ]
 
@@ -297,7 +298,7 @@ class TestKubernetes(AgentCheckTest):
               'kube_namespace:default', 'kube_app:dd-agent', 'kube_foo:bar','kube_bar:baz',
               'kube_replication_controller:dd-agent'], [MEM, CPU, NET, NET_ERRORS, DISK_USAGE]),
             (['pod_name:no_pod'], [MEM, CPU, FS, NET, NET_ERRORS, DISK]),
-            (['kube_replication_controller:dd-agent', 'kube_namespace:default'], [PODS]),
+            (['kube_replication_controller:dd-agent', 'kube_namespace:default', 'kube_daemon_set:dd-agent'], [PODS]),
             ([], [LIM, REQ, CAP])  # container from kubernetes api doesn't have a corresponding entry in Cadvisor
         ]
 
@@ -381,6 +382,7 @@ class TestKubernetes(AgentCheckTest):
         self.run_check(config, force_reload=True)
         self.assertEvent('dd-agent-a769 SuccessfulDelete on Bar', count=1, exact_match=False)
         self.assertEvent('hello-node-47289321-91tfd Scheduled on Bar', count=0, exact_match=False)
+
 
 class TestKubeutil(unittest.TestCase):
     @mock.patch('utils.kubernetes.KubeUtil._locate_kubelet', return_value='http://172.17.0.1:10255')
